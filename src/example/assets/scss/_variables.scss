@@ -1,0 +1,42 @@
+@import '~igniteui-angular/lib/core/styles/themes/index';
+
+$icomoon-font-family: "icomoon" !default;
+
+$icomoon-font-family: "icomoon" !default;
+$icomoon-font-path: "fonts" !default;
+
+$icon-connect: "\f07e";
+$icon-upload: "\e900";
+$icon-pending: "\e94e";
+$icon-reload: "\e984";
+$icon-warning: "\ea07";
+$icon-cancel: "\ea0d";
+$icon-canceled: "\ea0e";
+$icon-success: "\ea10";
+$icon-progress: "\ea2e";
+$icon-toggle-open: "\ea41";
+$icon-toggle-close: "\ea43";
+$icon-github: "\eab0";
+$icon-npm: "\eab1";
+
+$colors : (
+    text: #E2E2E2,
+    white: #E2E2E2,
+    textDark: darken(#E2E2E2, 20%),
+    darkBlue: #006494,
+    blue: #0582Ca,
+    lightBlue: #00A6FB,
+    black: #0D1F2D,
+    red: #ED4337
+);
+
+$dark-tabs: igx-tabs-theme(
+    $item-text-color: map-get($colors, textDark),
+    $item-background: map-get($colors, darkBlue),
+    $item-hover-background: map-get($colors, blue),
+    $item-hover-color: #343a40,
+    $item-active-color: map-get($colors, text),
+    $item-active-icon-color: #FFF,
+    $indicator-color: #F8F8F8,
+    $tab-ripple-color: #F8F8F8
+);

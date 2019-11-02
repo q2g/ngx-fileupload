@@ -1,3 +1,5 @@
 export const environment = {
-  production: true
+  production: true,
+  disableAnimations: false,
+  demo: false
 };

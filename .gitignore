@@ -4,7 +4,9 @@
 /src/dist
 /tmp
 /out-tsc
-/code_coverage
+/src/coverage
+/src/documentation
+/src/server/upload.log
 
 # Only exists if Bazel was run
 /bazel-out

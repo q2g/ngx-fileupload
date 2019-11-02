@@ -1,167 +1,81 @@
 # NgxFileupload
 
 [![npm](https://img.shields.io/npm/v/@r-hannuschka/ngx-fileupload.svg?maxAge=2592000?style=plastic)](https://www.npmjs.com/package/@r-hannuschka/ngx-fileupload)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/dc2f1a553c31471a95184d397bf72eb3)](https://www.codacy.com/app/r-hannuschka/ngx-fileupload?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=r-hannuschka/ngx-fileupload&amp;utm_campaign=Badge_Grade)
+[![CircleCI](https://circleci.com/gh/r-hannuschka/ngx-fileupload/tree/master.svg?style=svg)](https://circleci.com/gh/r-hannuschka/ngx-fileupload/tree/master)
 
 Angular 8+ async fileupload with progressbar
 
 ![ngx-fileupload.gif](./docs/ngx-fileupload.gif)
+
 ___
-
-## Table of Contents
-
--[Installation](#installation)  
--[Usage](#usage)  
 
 ## Installation
 
 npm
 
 ```bash
-npm i --save @r-hannuschka/ngx-fileupload angular-pipes
+npm i --save @r-hannuschka/ngx-fileupload
 ```
+
+## Demo
+
+Watch [Demo](https://r-hannuschka.github.io/ngx-fileupload/#/) to see ngx fileupload in action, customizing views and add validations.
+
+## Docs
+
+See [Documentation](https://r-hannuschka.github.io/ngx-fileupload/documentation) for further details, auto generated with Compodoc
 
 ## Usage
 
-app.module.ts
-
-```js
-import { NgModule, Injectable } from '@angular/core';
-import { NgxFileuploadModule } from 'lib/public-api';
-
-@NgModule({
-    imports: [
-        ...
-        NgxFileuploadModule
-    ],
-    exports: [...],
-    declarations: [...]
-})
-export class AppModule { }
-```
-
-app.component.html
-
 ```html
-<ngx-fileupload [url]="<URL>"></ngx-fileupload>
+<ngx-fileupload [url]="'http://localhost:3000/upload'"></ngx-fileupload>
 ```
 
-### custom item template
+## Features 
 
-```html
-<ng-template #customItemTemplate let-uploadData="data" let-uploadCtrl="ctrl">
-    <h2>{{uploadData.name}}/{{uploadData.state}}</h2>
-    <button type="button" (click)="uploadCtrl.cancel()">stop</button>
-</ng-template>
+### Version 3.0+
 
-<ngx-fileupload [url]="<URL>" [itemTemplate]='customItemTemplate'></ngx-fileupload>
-```
+- **Upload Storage**
 
-__Scope Variables__
+    Uploads will not longer store in ViewComponents this was a big mistake which leads to the problem that all uploads have to been stopped if the view has been left. So we deicide create a Storage which holds all Upload Requests, so it is very easy to create a new **InjectionToken** and inject your UploadStorage in any view you want. You can even leave the view and return later and see your uploads again.
 
-*data*
+- **Upload Queue**
 
-informations arround the uploaded file
+    The Upload Queue is part of the storage and controls which upload could start and which should pending until we got a free space. So you can add 50 Files start them all but by default the queue will only allow 5 uploads on the same time, if one upload is completed, canceled or removed it will grab next from queue and starts it.
 
-| name | type | description | values |
-|---|---|---|---|
-| state | string | current state of upload | canceled, queued, progress, error,  uploaded|
-| uploaded | number | uploaded size in byte | |
-| size | number | size of file | |
-| name | string | name of file | |
-| progress | number | progress in percent | |
-| hasError | boolean | flag upload got error | |
-| error | string | current error message | |
+    This will only happens for Upload Requests which was started (upload all or start them one by one), so no File would uploaded if you just put them into the list.
 
-*ctrl*
+- **Seperate View from Bussiness Logic**
 
-remote control to start stop a download
+    One other big change we completly seperate the view from bussiness logic, so you can allways build a complete own view just use the core classes (UploadStore, UploadQueue, UploadRequest, Validation) to create your own fileupload component.
 
-```html
-<ng-template #customItemTemplate ... let-uploadCtrl="ctrl">
-    <!-- start current download -->
-    <button type="button" (click)="uploadCtrl.start()">start</button>
+    You dont have create a complete own view if you want to customize one view, you can allways just use the NgxFileUpload UI and customize them.
 
-    <!-- stop current download -->
-    <button type="button" (click)="uploadCtrl.cancel()">stop</button>
-</ng-template>
-```
+### Version 2.0+
 
-### full customization
+- **Validation**
 
-cool.component.ts
+    We completly reworked the validation concept, so now validators are not Providers anymore and built in the Compositor Design Pattern. So you can create multiple validators and put them together into groups and combine multiple groups in one group.
 
-```ts
-import { FileUpload } from '../services/file-upload';
-import { UploadModel, UploadState } from '../model/upload';
+### Version 1.0+
 
-@Component({
-    selector: 'my-cool-component',
-    styleUrls: ['./cool.component.scss'],
-    templateUrl: 'cool.component.html',
-})
-export class MyCoolComponent {
+- **Async Uploads**
 
-    /**
-     * all file uploades, which will be added to upload-item view
-     */
-    public uploads: FileUpload[] = [];
+    All files will uploaded in a seperat request, so you can control them seperate (cancel, start ) and get informations about them
 
-    /**
-     * new uploads added with drag and drop
-     */
-    public onUploadsAdd( uploads: FileUpload[] ) {
-        this.uploads.push( ...uploads );
-    }
+- **Full Customizeable**
 
-    /**
-     * handle upload change event,
-     * if upload has been completed or canceled remove it from list
-     */
-    public handleUploadChange( upload: UploadModel, fileUpload: FileUpload ) {
-        let completed = upload.state === UploadState.CANCELED;
-        completed = completed || upload.state === UploadState.UPLOADED;
+    Even if we provide a default view you can allways create a own view, inject a custom template to ngx-fileupload or ngx-fileupload-item to bring up a complete new view for every upload request or just add ngxFileUpload Directive to any component which should be used as FileBrowser
 
-        if ( completed ) {
-            const idx = this.uploads.indexOf(fileUpload);
-            this.uploads.splice( idx, 1 );
-        }
-    }
-}
-```
+To get more detailed informations please check out the docs
 
-cool.component.html
+- [Upload Component](./docs/upload-component.md)
+- [Upload Directive](./docs/upload-directive.md)
+- [Upload Item](./docs/upload-item.md)
+- [Validation](./docs/validation.md)
 
-```html
-<div class="file-upload--list">
-    <!--
-        list to show all current files which should uploaded
-        pass upload container (item) to file upload view ngx-fileupload-item
-        to register on upload changes
-
-        optional: add custom template
-    -->
-    <ng-container *ngFor="let item of uploads">
-        <ngx-fileupload-item
-            [upload]="item"
-            [template]="itemTemplate"
-            (changed)="handleUploadChange($event, item)">
-        </ngx-fileupload-item>
-    </ng-container>
-</div>
-<!--
-    add directive ngxFileUpload to any container, if you drop files here
-    it will generate a file upload container for each file wich has
-    been added
--->
-<div class="fileupload dropzone"
-    [ngxFileupload]="url"
-    (add)="onUploadsAdd($event)"
-    #myNgxFileuploadRef='ngxFileuploadRef'>
-</div>
-
-<!-- button, on click use myNgxFileuploadRef to upload all files at once -->
-<button class="btn-upload" type="button" (click)="myNgxFileuploadRef.upload()">Upload</button>
-```
+___
 
 ## Development
 
@@ -179,13 +93,32 @@ node src\server\upload-server.js
 npm start
 ```
 
-## @Progress
+## Tests
 
-- validation: max file size
-- validation: allowed files
-- theming
-- unit tests
-- e2e tests
+```bash
+# end to end tests
+npm run e2e
+
+# unit tests
+ng test ngx-fileupload
+```
+
+## Roadmap
+
+- reimplement e2e tests
+- reimplement unit tests
+- ~~better state management for uploads~~
+- ~~add option to limit processing max uploads at once~~
+
+## Credits
+
+All icon fonts was created with [IconMoon App](https://icomoon.io/app/#/select)
+
+Special thanks for code reviews, great improvements and ideas to
+
+||||  
+|:-:|:-:|:-:|
+|[![alt Konrad Mattheis](https://avatars2.githubusercontent.com/u/1100969?s=60&v=4)](https://github.com/konne)<br />Konrad Mattheis| [<img src="https://avatars3.githubusercontent.com/u/17725886?s=60&v=4" width=60 alt="Thomas Haenig" />](https://github.com/thomashaenig)<br />Thomas Haenig| [![alt Alexander Görlich](https://avatars0.githubusercontent.com/u/13659581?s=60&v=4)](https://github.com/AlexanderGoerlich)  <br />Alexander Görlich|
 
 ## Author
 

@@ -1,1 +1,7 @@
-<ngx-fileupload [url]="'http://localhost:3000/upload'"></ngx-fileupload>
+<app-ui--header [menuItems]="menuItems"></app-ui--header>
+
+<main class="container">
+    <router-outlet></router-outlet>
+
+    <app-ui--upload-overview *ngIf="showUploadOverlay" [title]="'Ongoing Uploads'"></app-ui--upload-overview>
+</main>
