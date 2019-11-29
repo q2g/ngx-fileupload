@@ -1,13 +1,15 @@
 # NgxFileupload
 
 [![npm](https://img.shields.io/npm/v/@r-hannuschka/ngx-fileupload.svg?maxAge=2592000?style=plastic)](https://www.npmjs.com/package/@r-hannuschka/ngx-fileupload)
+![](https://github.com/r-hannuschka/ngx-fileupload/workflows/ngx-fileupload/badge.svg?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/dc2f1a553c31471a95184d397bf72eb3)](https://www.codacy.com/app/r-hannuschka/ngx-fileupload?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=r-hannuschka/ngx-fileupload&amp;utm_campaign=Badge_Grade)
-[![CircleCI](https://circleci.com/gh/r-hannuschka/ngx-fileupload/tree/master.svg?style=svg)](https://circleci.com/gh/r-hannuschka/ngx-fileupload/tree/master)
+[![DeepScan grade](https://deepscan.io/api/teams/6017/projects/7879/branches/86957/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=6017&pid=7879&bid=86957)
+[![codecov](https://codecov.io/gh/r-hannuschka/ngx-fileupload/branch/master/graph/badge.svg)](https://codecov.io/gh/r-hannuschka/ngx-fileupload)
+[![dependencies Status](https://david-dm.org/r-hannuschka/ngx-fileupload/status.svg?path=src)](https://david-dm.org/r-hannuschka/ngx-fileupload?path=src)
 
-Angular 8+ async fileupload with progressbar
+Angular 8 async file upload with progressbar, upload queue and validations.
 
-![ngx-fileupload.gif](./docs/ngx-fileupload.gif)
-
+[![ngx file upload demo on youtube](./docs/ngx-fileupload.png)](http://www.youtube.com/watch?v=KpHKw0AEOqg)
 ___
 
 ## Installation
@@ -18,19 +20,28 @@ npm
 npm i --save @r-hannuschka/ngx-fileupload
 ```
 
+## Usage
+
+```html
+<ngx-fileupload [url]="'http://localhost:3000/upload'"></ngx-fileupload>
+```
+
 ## Demo
 
 Watch [Demo](https://r-hannuschka.github.io/ngx-fileupload/#/) to see ngx fileupload in action, customizing views and add validations.
 
 ## Docs
 
-See [Documentation](https://r-hannuschka.github.io/ngx-fileupload/documentation) for further details, auto generated with Compodoc
+To get more detailed informations please check out the docs
 
-## Usage
-
-```html
-<ngx-fileupload [url]="'http://localhost:3000/upload'"></ngx-fileupload>
-```
+- [API](./docs/api.md)
+- [File Browser](./docs/upload-directive.md)
+- [NgxFileUploadFactory](./docs/factory.md)
+- [Pipes](./docs/pipes.md)
+- [Storage](./docs/upload.storage.md)
+- [Upload Component](./docs/upload-component.md)
+- [Upload Item](./docs/upload-item.md)
+- [Validation](./docs/validation.md)
 
 ## Features 
 
@@ -68,13 +79,6 @@ See [Documentation](https://r-hannuschka.github.io/ngx-fileupload/documentation)
 
     Even if we provide a default view you can allways create a own view, inject a custom template to ngx-fileupload or ngx-fileupload-item to bring up a complete new view for every upload request or just add ngxFileUpload Directive to any component which should be used as FileBrowser
 
-To get more detailed informations please check out the docs
-
-- [Upload Component](./docs/upload-component.md)
-- [Upload Directive](./docs/upload-directive.md)
-- [Upload Item](./docs/upload-item.md)
-- [Validation](./docs/validation.md)
-
 ___
 
 ## Development
@@ -100,13 +104,13 @@ npm start
 npm run e2e
 
 # unit tests
-ng test ngx-fileupload
+npm run test
 ```
 
 ## Roadmap
 
-- reimplement e2e tests
-- reimplement unit tests
+- ~~reimplement e2e tests~~
+- ~~reimplement unit tests~~
 - ~~better state management for uploads~~
 - ~~add option to limit processing max uploads at once~~
 

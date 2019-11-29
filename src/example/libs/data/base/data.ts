@@ -18,5 +18,7 @@ export interface MenuItem {
 export const MainMenuItems: MenuItem[] = [
     {label: "Dashboard", route: "dashboard"},
     {label: "Customize", route: "customize"},
-    {label: "Validation", route: "validation"}
+    {label: "Automatic Upload", route: "auto-upload"},
+    {label: "Validation", route: "validation"},
+    {label: "Ngx File Drop", route: "drop-zone"},
 ];

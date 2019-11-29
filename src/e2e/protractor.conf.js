@@ -17,14 +17,13 @@ exports.config = {
     "browserName": "chrome",
     "chromeOptions": {
         args: [
-            "--headless",
-            "--disable-gpu",
             "--window-size=800,600",
             // set log level to error
             "--log-level=0"
         ]
     },
   },
+
   directConnect: true,
   baseUrl: "http://localhost:4201/",
   framework: "jasmine",

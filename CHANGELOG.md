@@ -1,5 +1,44 @@
 # Changelog
 
+## 3.3.0
+
+### features
+
+- file browser / ngxFileUpload Directive only handles file drop / browse now
+- NgxFileUploadFactory could now create multiple Requests at once just pass File[] as first argument
+
+### other changes
+
+- update docs
+- update examples
+
+## 3.2.2
+
+### other changes
+
+- update readme
+- switch to github actions
+
+## 3.2.1
+
+### bugfixes
+
+- fixed bug custom formData was not used
+
+## 3.2.0
+
+### features
+
+- export ngx-fileupload-toolbar
+- UploadStorage could add now array of UploadRequests 
+- create Factory to create UploadRequests
+- create example page using ngx-file-drop as file browser
+
+### bugfixes
+
+- fixed bug if all uploads was removed, storage change triggers twice
+- fixed bug storage destroy dont unsubscribe from observables
+
 ## 3.1.0
 
 ### features

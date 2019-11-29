@@ -1,6 +1,6 @@
 export const HTML = `
 <!-- define custom template which should used for each upload -->
-<ng-template #uploadRequestTemplate let-upload="data" let-ctrl="ctrl">
+<ng-template #itemTemplate let-upload="data" let-ctrl="ctrl">
     <!--
         @see tab template for full template
     -->
@@ -10,7 +10,7 @@ export const HTML = `
 
     <!-- upload toolbar -->
     <div class="btn-toolbar mb-3">
-        <div class="input-group ml-auto" [ngxFileUpload]="http://localhost:3000/upload/" [storage]="storage" >
+        <div class="input-group ml-auto" ngxFileUpload (add)="drop($event)" >
             <div class="input-group-prepend">
                 <div class="input-group-text" id="btnGroupAddon">Files</div>
             </div>
@@ -24,21 +24,21 @@ export const HTML = `
         </div>
     </div>
 
-    <!-- fileuploads goes here -->
+    <!-- fileuploads -->
     <div class="card-list">
         <ng-container *ngFor="let upload of uploads">
             <ngx-fileupload-item [template]="itemTemplate" [upload]="upload"></ngx-fileupload-item>
         </ng-container>
     </div>
 </div>
+
 `;
 
 export const TYPESCRIPT = `
 import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
-import { UploadStorage, UploadRequest, UploadApi } from "@r-hannuschka/ngx-fileupload";
+import { UploadStorage, UploadRequest, UploadState, NgxFileUploadFactory } from "@r-hannuschka/ngx-fileupload";
 import { Subject } from "rxjs";
 import { takeUntil } from "rxjs/operators";
-
 import { ExampleUploadStorage } from "@ngx-fileupload-example/data/base/upload-storage";
 
 @Component({
@@ -48,35 +48,27 @@ import { ExampleUploadStorage } from "@ngx-fileupload-example/data/base/upload-s
 })
 export class ItemTemplateComponent implements OnInit, OnDestroy {
 
-    /**
-     * get upload-state enum so we could use it template
-     */
-    public uploadStates = UploadApi.UploadState;
+    public uploadStates = UploadState;
 
     public uploads: UploadRequest[] = [];
 
-    private destroy$: Subject<boolean> = new Subject();
+    public destroy$: Subject<boolean> = new Subject();
 
     public constructor(
-        @Inject(ExampleUploadStorage) public storage: UploadStorage
-    ) {
-    }
+        @Inject(ExampleUploadStorage) public storage: UploadStorage,
+        @Inject(NgxFileUploadFactory) private uploadFactory: NgxFileUploadFactory
+    ) {}
 
     public ngOnInit() {
         this.storage.change()
-            .pipe(takeuntil(this.destroy$))
-            .subscribe({
-                next: (requests: UploadRequest[]) => this.uploads = requests
-            });
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((requests: UploadRequest[]) => this.uploads = requests);
     }
 
     public ngOnDestroy() {
         this.destroy$.next(true);
         this.destroy$.complete();
-
         this.destroy$ = null;
-        this.uploads = null;
-        this.storage = null;
     }
 
     public uploadAll() {
@@ -91,14 +83,16 @@ export class ItemTemplateComponent implements OnInit, OnDestroy {
         this.storage.stopAll();
     }
 
-    public removeUpload(requestId) {
-        this.storage.remove(requestId);
+    public drop(files: File[]) {
+        const uploadOptions: UploadOptions = { url: this.url };
+        const requests = this.uploadFactory.createUploadRequest(files, uploadOptions);
+        this.storage.add(requests);
     }
 }
 `;
 
 export const TEMPLATE = `
-<ng-template #uploadRequestTemplate let-upload="data" let-ctrl="ctrl" #custom>
+<ng-template #itemTemplate let-upload="data" let-ctrl="ctrl" #custom>
 
     <div class="card upload">
 
@@ -106,21 +100,21 @@ export const TEMPLATE = `
             <span class="title text-truncate">{{upload.name}}</span>
 
             <div class="actions btn-group">
-                <app-ui--button (dispatch)="ctrl.start()"
-                    [class]="'btn-upload btn-secondary btn-sm'"
+                <app-ui--button
+                    (dispatch)="ctrl.start()"
+                    [class]="'btn-upload btn-sm'"
                     [disabled]="upload.state !== uploadStates.IDLE"
                     *ngIf="!upload.completed">
+
                     <i class="icon-left icon-upload"></i>
                 </app-ui--button>
 
-                <app-ui--button (dispatch)="ctrl.stop()"
-                    [disabled]="upload.state === uploadStates.COMPLETED || upload.state === uploadStates.CANCELED || upload.isInvalid"
-                    [class]="'btn.cancel btn-secondary btn-sm'">
-                    <i class="icon-left icon-cancel-outline"></i>
+                <app-ui--button (dispatch)="ctrl.stop()" [disabled]= "!(upload | isCancelAble)" [class]="'btn.cancel btn-sm'">
+                    <i class="icon-left icon-canceled"></i>
                 </app-ui--button>
 
-                <app-ui--button (dispatch)="removeUpload(upload.requestId)">
-                    <i class="icon-left icon-cancel-outline"></i>
+                <app-ui--button (dispatch)="ctrl.remove()">
+                    <i class="icon-left icon-cancel"></i>
                 </app-ui--button>
             </div>
         </div>
@@ -143,7 +137,7 @@ export const TEMPLATE = `
             </div>
         </div>
 
-        <div class="card-footer" *ngIf="upload.state === uploadStates.COMPLETED || upload.isInvalid">
+        <div class="card-footer" *ngIf="upload.state === uploadStates.COMPLETED || upload.validationErrors">
 
             <!-- response completed show error / success -->
             <ng-container *ngIf="upload.state === uploadStates.COMPLETED"
@@ -151,29 +145,29 @@ export const TEMPLATE = `
                 [ngTemplateOutletContext]="{data: upload.hasError ? upload.response.errors : upload.name}" >
             </ng-container>
 
-            <ng-container *ngIf="upload.isInvalid"
+            <ng-container *ngIf="upload.validationErrors"
                 [ngTemplateOutlet]="invalidTemplate"
-                [ngTemplateOutletContext]="{data: upload.validation.errors}" >
+                [ngTemplateOutletContext]="{data: upload.validationErrors}" >
             </ng-container>
         </div>
     </div>
 </ng-template>
 
-<!-- template: upload error -->
+<!-- upload error template -->
 <ng-template #errorTemplate let-errors="data">
     <ul class="errors">
         <li *ngFor="let error of errors" class="error">{{error}}</li>
     </ul>
 </ng-template>
 
-<!-- template: upload success -->
+<!-- upload success template -->
 <ng-template #successTemplate let-name="data">
     <span class="success">
         {{name}} successful uploaded
     </span>
 </ng-template>
 
-<!-- template: upload invalid -->
+<!-- upload validation error template -->
 <ng-template #invalidTemplate let-validationErrors="data">
     <ul class="errors">
         <li class="error" *ngFor="let error of validationErrors | keyvalue">

@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, OnDestroy } from "@angular/core";
 import { Subject } from "rxjs";
 import { takeUntil, debounceTime } from "rxjs/operators";
-import { UploadStorage, UploadRequest } from "../../upload";
+import { UploadStorage } from "../../upload";
+import { UploadRequest } from "../../api";
 
 interface InfoData {
     error: number;
@@ -35,7 +36,6 @@ export class UploadToolbarComponent implements OnInit, OnDestroy {
     private destroyed$: Subject<boolean> = new Subject();
 
     ngOnInit() {
-
         this.registerStoreChange();
     }
 
@@ -75,13 +75,10 @@ export class UploadToolbarComponent implements OnInit, OnDestroy {
     private updateInfoBar(uploads: UploadRequest[]) {
         this.uploadInfo = uploads.reduce<InfoData>((data, upload) => {
             return {
-                ...data,
-                ...{
-                    error   : data.error    + (upload.hasError() || upload.isInvalid() ? 1 : 0),
-                    idle    : data.idle     + (upload.isIdle() ? 1 : 0),
-                    pending : data.pending  + (upload.isPending() ? 1 : 0),
-                    progress: data.progress + (upload.isProgress() ? 1 : 0)
-                }
+                error   : data.error    + (upload.hasError() || upload.isInvalid() ? 1 : 0),
+                idle    : data.idle     + (upload.isIdle() ? 1 : 0),
+                pending : data.pending  + (upload.isPending() ? 1 : 0),
+                progress: data.progress + (upload.isProgress() ? 1 : 0)
             };
         }, {idle: 0, pending: 0, error: 0, progress: 0});
     }

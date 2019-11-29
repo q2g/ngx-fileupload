@@ -1,17 +1,16 @@
 import { Directive, HostListener, Input, Output, EventEmitter, OnDestroy, Renderer2 } from "@angular/core";
 import { Subject } from "rxjs";
 
-import { Validator, ValidationFn } from "../../../data/api/validation";
-import { UploadRequest } from "../../upload/src/upload.request";
-import { FileUploadFactory } from "../../utils/factory";
-import { UploadStorage } from "../../upload/src/upload.storage";
-
 /**
+ * FileBrowser directive
+ *
+ * @todo refactor this should only notifiy if files are dropped, not add them to store or create an upload
+ *
  * directive to add uploads with drag / drop
  *
  * @example
  *
- * <div [ngxFileUpload]="'URL'" (add)="onUploadAdd($event)" #ngxFileuploadRef="ngxFileUploadRef"></div>
+ * <div [ngxFileUpload]="'URL'" (add)="onUploadAdd($event)"></div>
  * <button (click)="ngxFileUploadRef.upload()">Upload</button>
  */
 @Directive({
@@ -27,37 +26,10 @@ export class FileBrowserDirective implements OnDestroy {
      * <div [ngxFileUpload]=""localhost/upload"" (add)="onUploadAdd($event)" ></div>
      */
     @Output()
-    public add: EventEmitter<UploadRequest[]>;
-
-    @Input()
-    public storage: UploadStorage;
-
-    @Input("ngxFileUpload")
-    public set ngxFileUpload(url: string) {
-        this.url = url;
-    }
-
-    @Input()
-    public validator: Validator | ValidationFn;
-
-    /**
-     * if set to false upload post request body will use
-     * plain file object in body
-     */
-    @Input()
-    public useFormData = true;
-
-    /**
-     * form data field name with which form >data will be send
-     * by default this will be file
-     */
-    @Input()
-    public formDataName = "file";
+    public add: EventEmitter<File[]>;
 
     @Input()
     public disabled = false;
-
-    private url: string;
 
     /**
      * remove from subscribtions if component gets destroyed
@@ -73,8 +45,7 @@ export class FileBrowserDirective implements OnDestroy {
      * Creates an instance of NgxFileUploadDirective.
      */
     constructor(
-        private renderer: Renderer2,
-        private uploadFactory: FileUploadFactory,
+        private renderer: Renderer2
     ) {
         this.add = new EventEmitter();
         this.fileSelect = this.createFieldInputField();
@@ -107,7 +78,7 @@ export class FileBrowserDirective implements OnDestroy {
 
         if (!this.disabled) {
             const files = Array.from(event.dataTransfer.files);
-            this.handleFileSelect(files);
+            this.add.emit(files);
         }
     }
 
@@ -117,27 +88,12 @@ export class FileBrowserDirective implements OnDestroy {
      */
     @HostListener("click", ["$event"])
     public onClick(event: MouseEvent) {
-
         event.stopPropagation();
         event.preventDefault();
 
         if (!this.disabled) {
             this.fileSelect.click();
         }
-    }
-
-    /**
-     * files has been selected via drag drop
-     * or with input type="file"
-     */
-    private handleFileSelect(files: File[]) {
-        files.forEach((file: File) => {
-            const upload = this.uploadFactory.createUpload(file, {url: this.url});
-            if (this.validator) {
-                upload.validate(this.validator);
-            }
-            this.storage.add(upload);
-        });
     }
 
     /**
@@ -148,7 +104,7 @@ export class FileBrowserDirective implements OnDestroy {
     private createFieldInputField(): HTMLInputElement {
         const inputField = document.createElement("input");
         this.renderer.setAttribute(inputField, "type", "file");
-        this.renderer.setAttribute(inputField, "multiple", "multiple");
+        this.renderer.setProperty(inputField, "multiple", true);
         this.renderer.setStyle(inputField, "display", "none");
         this.renderer.listen(inputField, "change", (e) => this.onFileSelect(e));
         return inputField;
@@ -163,7 +119,7 @@ export class FileBrowserDirective implements OnDestroy {
         event.preventDefault();
 
         const files = Array.from(this.fileSelect.files);
-        this.handleFileSelect(files);
+        this.add.emit(files);
 
         /**
          * clear value otherwise change will not trigger again

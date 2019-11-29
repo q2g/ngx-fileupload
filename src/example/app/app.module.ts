@@ -34,6 +34,8 @@ import { UiModule } from "@ngx-fileupload-example/ui";
 import { CustomizePage } from "@ngx-fileupload-example/page/customize";
 import { Dashboard } from "@ngx-fileupload-example/page/dashboard";
 import { ValidationPage } from "@ngx-fileupload-example/page/validation";
+import { DropZone } from "@ngx-fileupload-example/page/drop-zone";
+import { AutoUploadDemo } from '@ngx-fileupload-example/page/auto-upload';
 
 const fakeUploadProvider: Provider = {
     provide: HTTP_INTERCEPTORS,
@@ -50,14 +52,20 @@ const fakeUploadProvider: Provider = {
         BrowserAnimationsModule,
         NgxFileUploadModule,
         RouterModule.forRoot([], {useHash: true}),
-        CustomizePage,
-        Dashboard,
-        ValidationPage,
-        UiModule,
         IgxIconModule,
         HighlightModule.forRoot({
             languages: hljsLanguages
-        })
+        }),
+
+        // app module
+        UiModule,
+
+        // pages
+        AutoUploadDemo,
+        CustomizePage,
+        Dashboard,
+        ValidationPage,
+        DropZone,
     ],
     bootstrap: [AppComponent],
     providers: [...environment.demo ? [fakeUploadProvider] : []]
